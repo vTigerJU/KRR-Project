@@ -25,6 +25,32 @@ occupied(X, Y, T) :-box_at(X, Y, T).
 
 %--- Player movement -----
 
+next_pos (X, Y, up, X, Y1)     :- Y1 = Y - 1.
+next_pos (X, Y, down, X, Y1)   :- Y1 = Y + 1.
+next_pos (X, Y, left, X, Y1)   :- X1 = X - 1.
+next_pos (X, Y, right, X, Y1)  :- X1 = X - 1.
+
+%--- move without box-----
+player (X2, Y2, T + 1) :- 
+                player (X, Y, T),
+                move (D, T),
+                next_pos (X, Y, D, X2, Y2),
+                x(X2),  y(Y2),
+                not box_at (X2, Y2, T),
+                not wall (X2, Y2). 
+
+
+%--- beyond position (for pushing)-----
+beyond_pos(X, Y, up, X, Y2)    :- Y2 = Y - 1.
+beyond_pos(X, Y, down, X, Y2)  :- Y2 = Y + 1.
+beyond_pos(X, Y, left, X2, Y)  :- X2 = X - 1.
+beyond_pos(X, Y, right, X2, Y) :- X2 = X + 1.
+
+
+
+%---pushing rule: player and box move together
+
+
 
 
 
