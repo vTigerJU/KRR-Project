@@ -4,7 +4,7 @@
 % Sokoban with ASP-Based Hint System
 
 
-#const maxT = 40. %we can change later if we need it
+#const maxT = 200. %we can change later if we need it
 
 
 time(0..maxT).
@@ -49,6 +49,27 @@ beyond_pos(X, Y, right, X2, Y) :- X2 = X + 1.
 
 
 %---pushing rule: player and box move together
+player (Xb, Yb, T + 1) :- 
+            player (X, Y, T),
+            move(D, T),
+            next_pos(X, Y, D, Xb, Yb),
+            box(B, Xb, Yb, T),
+            beyond_pos(Xb, Yb, D, Xb2, Yb2),
+            x(Xb2), y(Yb2),
+            not occupied(Xb2, Yb2, T).
+
+
+box (B, Xb2, Yb2, T + 1) :-
+            player(X, Y, T),
+            move(D, T),
+            next_pos(X, Y, D, Xb, Yb),
+            box(B, Xb, Yb, T),
+            beyond_pos(Xb, Yb, D, Xb2, Yb2),
+            x(Xb2), y(Yb2),
+            not occupied(Xb2, Yb2, T).
+
+
+%---
 
 
 
@@ -62,3 +83,7 @@ beyond_pos(X, Y, right, X2, Y) :- X2 = X + 1.
 
 :- not 1 { player (X, Y, 0) : x(X), y(Y) } 1.
 
+
+
+%---OutPut------
+#show move/2.
