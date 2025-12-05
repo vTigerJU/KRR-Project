@@ -1,0 +1,124 @@
+\documentclass[11pt]{article}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+%configure options for the hyperref package,
+%which is used to add hyperlinks to documents
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue
+    }
+\urlstyle{same}
+
+%configure options for the page size
+\usepackage[
+%paperheight=16cm, paperwidth=12cm,% Set the height and width of the paper
+includehead,
+nomarginpar,% We don't want any margin paragraphs
+%textwidth=10cm,% Set \textwidth to 10cm
+%headheight=10mm,% Set \headheight to 10mm
+]{geometry}
+
+
+% Set the page style to "fancy"...
+\pagestyle{fancy}
+%... then configure it.
+\fancyhead{} % clear all header fields
+\fancyhead[L]{TKRR25 Project Report,  HT2025} % left header
+\fancyhead[C]{} % center header
+\fancyhead[R]{\thepage} % right header
+
+\title{Sokoban With ASP-Based Hint System}
+\author{Hannan Khalil, Viktor Tiger, Emil Anderö, Axel Lindh}
+%\date{}
+\begin{document}
+
+\maketitle  % This command generates the title
+
+\section{Introduction and Movivation}
+
+Sokoban is a classical puzzle game in which a player must push boxes onto target tiles within a 2D grid world. The puzzle is well-knwon not only for its intuitive mechanics but also for its computational difficulty, being NP-hard.
+These characteristics make sokoban an excellent domain for symbolic AI techniques such as Answer Set Programming (ASP).
+The Movivation behind this project is to demonstrate how ASP can be integrated into an interactive system to provide reasoning capabilities such as solvability checking and intelligent hint generation. Unlike traditional sokoban implementations, our system is able to detect unsolvable states after player mistakes, compute optimal solutions, and provide real-time hints.
+
+
+{\it 
+\begin{itemize}
+  \item Briefly describe your chosen domain (e.g., healthcare, education, smart cities).
+  \item Why is this domain interesting or useful for ontology\cite{Guarino2009}/KG/ASP modeling?
+  \item Clearly define the scope of your project (what you cover, what you do not).
+\end{itemize}
+}
+
+\noindent Note:
+\begin{itemize}
+  \item In this template, all italic text should be removed and replaced with your own text (which should not be italic); the italic text is just a placeholder letting you know what to write there.
+
+  \item If you use Figures or Tables, please make sure to give each one a caption and a figure/table number and refer to them from the main text!
+
+  \item References should be provided where applicable.
+
+\end{itemize}
+
+\section{Methodology}
+
+Content depends on your chosen track, but structure is similar
+
+\subsection*{Ontology + KG parts (Tracks 1 + 3)}
+
+{\it 
+\begin{itemize}
+  \item Describe ontology design: main classes, object/data properties, restrictions.
+  \item Include a diagram or screenshot of your class hierarchy.
+  \item Explain how you populated the KG (data source, manual vs.automated, number of individuals/triples).
+\end{itemize}
+}
+
+\subsection*{ASP part (Tracks 2 + 3)}
+
+{\it 
+\begin{itemize}
+  \item Describe the ASP encoding: main predicates, rules, constraints.
+  \item Explain how the ASP part interacts with the ontology/KG (if applicable).
+  \item Explain why ASP is suited for this reasoning.
+\end{itemize} 
+}
+
+\subsection*{Hybrid part (Track 1)}
+
+{\it 
+\begin{itemize}     
+  \item Include a simple architecture diagram (e.g., query $\rightarrow$ KG $\rightarrow$ fallback to LLM).
+  \item Explain how the ontology/KG is used to enhance LLM responses.
+
+\end{itemize}
+}
+
+\subsection{Evaluation}
+
+{\it Describe how you evaluated your system (according to the evaluation suggestions given in the project description), and present the evaluation results.}
+
+
+\subsection{Discussion and Conclusion}
+
+{\it
+\begin{itemize}
+  \item Discuss the strengths and limitations of your approach.
+  \item What did you learn about combining symbolic and data-driven AI?
+\end{itemize}
+}
+
+\begin{thebibliography}{99}
+
+\bibitem{Guarino2009}
+Guarino, Nicola, Daniel Oberle, and Steffen Staab. "What is an ontology?." {\it Handbook on ontologies} (2009): 1-17.
+
+\end{thebibliography}
+
+
+
+\end{document}

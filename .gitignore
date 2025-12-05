@@ -1,0 +1,34 @@
+# Latex auxiliary files 
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex
+*.bbl
+*.blg
+
+# Intermediate PDF preview files
+*.pdfsync
+*.nav
+*.snm
+*.vrb
+
+# VS Code LaTeX Workshop temp files
+*.lb
+*.texpadtmp
+
+# Backup files
+*~
+*.bak
+
+# Aux files from BibTeX / Biber
+*.bcf
+*.run.xml
+
+# Ignore build directory if you use one
+/build/
