@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: clingcon
+Version: 5.2.1.post2
+Summary: CFFI-based bindings to the clingcon solver.
+Home-page: https://github.com/potassco/clingcon
+Author: Roland Kaminski
+Author-email: kaminski@cs.uni-potsdam.de
+License: MIT
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: cffi
+Requires-Dist: clingo
+
+This package allows for adding the clingcon propagator as a
+theory to clingcon.
+
+It can also be used as a clingcon solver running:
+
+    python -m clingcon CLINGCON_ARGUMENTS

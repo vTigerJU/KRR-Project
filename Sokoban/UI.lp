@@ -1,7 +1,5 @@
-% Root window
-elem(win, window, root).
-attr(win, title, "Hello clinguin").
-
-% Label inside the window
-elem(lbl, label, win).
-attr(lbl, text, "Hello, world from clinguin!").
+% UI.lp
+elem(w, window, root).
+elem(b1, button, w).
+attr(b1, label, "Hello world button").
+when(b1, click, call, next_solution).
