@@ -1,15 +1,7 @@
-%Initial state
-%Where are boxes, goals and player
-#const maxT = 2.
+#const maxT = 5.
 time(0..maxT).
 
-%Forbidden goal tiles
-%:- isgoal(X,Y), isnongoal(X,Y).????
-%:- isgoal(X,Y), wall(X,Y).
-%:- empty(X,Y,T), time(T), wall(X,Y).
-
-
-%%%Goal stat%%%
+%%%Goal state%%%
 goal_reached(C) :- crate(C), on(X,Y,C,T), isgoal(X,Y), time(T).
 
 %Integrity constraing for goal reached
@@ -72,16 +64,16 @@ on(X,Y,C,T+1) :- on(X,Y,C,T), time(T), not -on(X,Y,C,T+1).
 :- do(moveUp(p,X,Y),T), wall(X,Y-1).
 
 %Forbidden to push crate into wall
-:- do(pushLeft(p,X,Y,C), wall(X-2,Y)).
-:- do(pushRight(p,X,Y,C), wall(X+2,Y)).
-:- do(pushDown(p,X,Y,C), wall(X,Y+2)).
-:- do(pushUp(p,X,Y,C), wall(X,Y-2)).
+:- do(pushLeft(p,X,Y,C),T), wall(X-2,Y).
+:- do(pushRight(p,X,Y,C),T), wall(X+2,Y).
+:- do(pushDown(p,X,Y,C),T), wall(X,Y+2).
+:- do(pushUp(p,X,Y,C),T), wall(X,Y-2).
 
 %Forbidden to push into locked corner
-:- do(pushLeft(p,X,Y,C), deadlock(X-2,Y)).
-:- do(pushRight(p,X,Y,C), deadlock(X+2,Y)).
-:- do(pushDown(p,X,Y,C), deadlock(X,Y+2)).
-:- do(pushUp(p,X,Y,C), deadlock(X,Y-2)).
+:- do(pushLeft(p,X,Y,C),T), deadlock(X-2,Y).
+:- do(pushRight(p,X,Y,C),T), deadlock(X+2,Y).
+:- do(pushDown(p,X,Y,C),T), deadlock(X,Y+2).
+:- do(pushUp(p,X,Y,C),T), deadlock(X,Y-2).
 
 %%%Effects of Action%%%
 %PushLeft
@@ -136,15 +128,32 @@ on(X,Y-1,p,T+1) :- do(pushUp(p,X,Y,C),T),
 -on(X,Y,p,T+1) :- do(pushUp(p,X,Y,C),T),
     on(X,Y-1,C,T),
     on(X,Y,p,T).
-    
-%MoveLeft
-%MoveRight
-%MoveDown
-%MoveUp
 
+%MoveLeft
+on(X-1,Y,p,T+1) :- do(moveLeft(p,X,Y),T),
+    on(X,Y,p,T).
+-on(X,Y,p,T+1) :- do(moveLeft(p,X,Y),T),
+    on(X,Y,p,T).
+
+%MoveRight
+on(X+1,Y,p,T+1) :- do(moveRight(p,X,Y),T),
+    on(X,Y,p,T).
+-on(X,Y,p,T+1) :- do(moveRight(p,X,Y),T),
+    on(X,Y,p,T).
+
+%MoveDown
+on(X,Y+1,p,T+1) :- do(moveDown(p,X,Y),T),
+    on(X,Y,p,T).
+-on(X,Y,p,T+1) :- do(moveDown(p,X,Y),T),
+    on(X,Y,p,T).
+
+%MoveUp
+on(X,Y-1,p,T+1) :- do(moveUp(p,X,Y),T),
+    on(X,Y,p,T).
+-on(X,Y,p,T+1) :- do(moveUp(p,X,Y),T),
+    on(X,Y,p,T).
 
 %#minimize{1,T : do(M,T)}.
 %#minimize{T : do(_,T)}.
 
 #show do/2.
-#show on/4.
