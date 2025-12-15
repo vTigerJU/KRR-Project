@@ -69,12 +69,43 @@ box (B, Xb2, Yb2, T + 1) :-
             not occupied(Xb2, Yb2, T).
 
 
-%---
+%--- Frame axioms (Boxes that are not pushed stay)-----
+
+move_box (B, T) :- 
+        box(B, X, Y, T),
+        player(PX, PY, T),
+        move(D, T),
+        next_pos(PX, PY, D, X, Y).
 
 
+box (B, X, Y, T+1) :- 
+    box(B, X, Y, T),
+    not moved_box(B, T).
 
 
+%--- Illegal moves -----
 
+% cannot move outside grid
+:- move (D, T), player (X, Y, T),
+    next_pos(X, Y, D, X2, Y2),
+    (not x(X2); not y(Y2)).
+
+
+% cannot walk into a wall directly
+:- move (D, T), player (X, Y, T),
+    next_pos(X, Y, D, X2, Y2),
+    wall(X2, Y2),
+    not box_at(X2, Y2, T).
+
+% cannot push box into wall or another box or outside grid
+:- move (D, T), player (X, Y, T),
+    next_pos(X, Y, D, X2, Y2),
+    box(B, Xb, Yb, T),
+    ( not beyond_pos(Xb, Yb, D, Xb2, Yb2)
+    ; not x(Xb2)
+    ; not y(Yb2)
+    ; wall(Xb2, Yb2)
+    ; box_at(Xb2, Yb2, T)).
 
 
 
@@ -83,6 +114,23 @@ box (B, Xb2, Yb2, T + 1) :-
 
 :- not 1 { player (X, Y, 0) : x(X), y(Y) } 1.
 
+%--- Goal condition-----
+all_boxes_on_goals(T) :-
+    time(T),
+    not bad_box(T).
+
+
+bad_box(T) :- 
+    box(B, X, Y, T),
+    not goal(X, Y).
+
+
+solved :- all_boxes_on_goals(T).
+:- not solved.
+
+
+
+#minimize { 1, T : move(_, T) }.
 
 
 %---OutPut------
