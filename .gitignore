@@ -32,3 +32,4 @@
 
 # Ignore build directory if you use one
 /build/
+/test/

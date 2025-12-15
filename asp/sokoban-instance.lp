@@ -17,7 +17,6 @@ wall(1,4).
 wall(2,4).
 wall(3,4).
 %Extra walls
-wall(2,1).
 
 crate(c1;c2).
 on(2,2,c1,0).
@@ -26,7 +25,4 @@ player(p).
 on(3,3,p,0).
 isgoal(1,1).
 isgoal(3,1).
-
-coordinate(X,Y) :- X = 0..5, Y = 0..5.
-
-time(0..4).
+coordinate(X,Y) :- X = 0..10, Y = 0..10.
