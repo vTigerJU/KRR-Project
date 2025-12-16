@@ -1,7 +1,9 @@
 import pygame
 import sys
 import config as c
-from button import Button
+from components.button import Button
+import map_loader
+import controller 
 # --------------------
 # Initialization
 # --------------------
@@ -10,15 +12,15 @@ screen = pygame.display.set_mode((c.SCREEN_WIDTH, c.SCREEN_HEIGHT))
 pygame.display.set_caption("Grid Movement Example")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 24)
-
+map = map_loader.load_level_from_file("maps/test.txt")
 # --------------------
 # Game State
 # --------------------
-player_x = 4
-player_y = 4
-crates = {(5, 5), (2, 3)}
-walls = {(3, 3), (3, 4)}
-goals = {(1, 1), (7, 4)}
+player_x, player_y = map["player"]
+
+crates = map["boxes"]
+walls = map["walls"]
+goals = map["goals"]
 
 # --------------------
 # Helper functions
@@ -73,6 +75,7 @@ def draw_goals(goals):
             (center_x, center_y),
             c.GOAL_RADIUS
         )
+
 def draw_top_bar():
     pygame.draw.rect(
         screen,
@@ -114,21 +117,17 @@ def try_move(dx, dy):
     if target in walls:
         return
 
-    # If there's a crate, try to push it
     if target in crates:
         beyond = (target[0] + dx, target[1] + dy)
 
-        # Can't push if blocked
         if not in_bounds(*beyond):
             return
         if beyond in walls or beyond in crates:
             return
 
-        # Push crate
         crates.remove(target)
         crates.add(beyond)
 
-    # Move player
     player_x, player_y = target
 
 def is_completed(crates, goals):
@@ -137,8 +136,11 @@ def is_completed(crates, goals):
 def reset_game():
     print("Reset game")
 
-def undo_move():
-    print("Undo move")
+def solve():
+    print("Solve")
+    map_facts = map_loader.build_asp_facts(map,(player_x,player_y),crates)
+    result = controller.solve(map_facts)
+    print(result)
 
 def load_level():
     print("Load level")
@@ -150,7 +152,7 @@ y = (c.TOP_BAR_HEIGHT - c.BUTTON_HEIGHT) // 2
 buttons.append(Button("Reset", x, y, c.BUTTON_WIDTH, c.BUTTON_HEIGHT, reset_game,screen))
 x += c.BUTTON_WIDTH + c.BUTTON_PADDING
 
-buttons.append(Button("Undo", x, y, c.BUTTON_WIDTH, c.BUTTON_HEIGHT, undo_move,screen))
+buttons.append(Button("Solve", x, y, c.BUTTON_WIDTH, c.BUTTON_HEIGHT, solve,screen))
 x += c.BUTTON_WIDTH + c.BUTTON_PADDING
 
 buttons.append(Button("Load", x, y, c.BUTTON_WIDTH, c.BUTTON_HEIGHT, load_level,screen))
