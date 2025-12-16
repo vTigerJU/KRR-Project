@@ -113,5 +113,5 @@ def build_asp_facts(level, player_pos, boxes):
     return "\n".join(lines)
 
 def test():
-    level = load_level_from_file("maps/6.txt")
+    level = load_level_from_file("maps/7.txt")
     return build_asp_facts(level,player_pos=(8,25),boxes=[(1,1)])
