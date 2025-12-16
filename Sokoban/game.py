@@ -10,6 +10,7 @@ screen = pygame.display.set_mode((c.SCREEN_WIDTH, c.SCREEN_HEIGHT))
 pygame.display.set_caption("Grid Movement Example")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 24)
+move_count = 0
 map_name = "maps/test.txt"
 map = map_loader.load_level_from_file(map_name)
 
@@ -18,6 +19,9 @@ crate_img = pygame.transform.scale(crate_img, (c.TILE_SIZE, c.TILE_SIZE))
 
 wall_img = pygame.image.load("elements/block.png").convert_alpha()
 wall_img = pygame.transform.scale(wall_img, (c.TILE_SIZE, c.TILE_SIZE))
+
+broken_crate_img = pygame.image.load("elements/broken_crate.png").convert_alpha()
+broken_crate_img = pygame.transform.scale(broken_crate_img, (c.TILE_SIZE, c.TILE_SIZE))
 
 player_img = pygame.image.load("elements/player.png").convert_alpha()
 player_img = pygame.transform.scale(player_img, (c.TILE_SIZE, c.TILE_SIZE))
@@ -39,7 +43,7 @@ no_solution = False
 banner_text = ""
 
 def load_initial_state():
-    global crates, walls, goals, no_solution, player_x, player_y, banner_text, destroyed_crates
+    global crates, walls, goals, no_solution, player_x, player_y, banner_text, destroyed_crates, move_count
     map = map_loader.load_level_from_file(map_name)
     no_solution = False
     player_x, player_y = map["player"]
@@ -52,6 +56,7 @@ def load_initial_state():
     for crate in map["boxes"]:
         crates[crate] = 0
     destroyed_crates = set()
+    move_count = 0
 
 load_initial_state()
 
@@ -69,22 +74,47 @@ def draw_walls(walls):
         screen.blit(wall_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
 
 def draw_crates(crates):
-    for x, y in crates:
+    for (x, y) in crates:
         screen.blit(crate_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
+        if (x, y) in goals:
+            rect = pygame.Rect(
+                x * c.TILE_SIZE,
+                y * c.TILE_SIZE + c.TOP_BAR_HEIGHT,
+                c.TILE_SIZE,
+                c.TILE_SIZE
+            )
+            pygame.draw.rect(screen, (0, 255, 0), rect, 3)
+
+def draw_push_counters(crates):
+    """Draw remaining pushes on each crate"""
+    small_font = pygame.font.SysFont(None, 24)
+    for (x, y), push_count in crates.items():
+        remaining = c.MAX_PUSHES - push_count
+        
+        center_x = x * c.TILE_SIZE + c.TILE_SIZE - 15
+        center_y = y * c.TILE_SIZE + c.TOP_BAR_HEIGHT + 15
+        
+        if remaining == 1:
+            color = (255, 0, 0)
+        elif remaining <= 3:
+            color = (255, 255, 0)
+        else:
+            color = (0, 255, 0)
+        
+        pygame.draw.circle(screen, color, (center_x, center_y), 12)
+        pygame.draw.circle(screen, (0, 0, 0), (center_x, center_y), 12, 2)
+        
+        text = small_font.render(str(remaining), True, (0, 0, 0))
+        text_rect = text.get_rect(center=(center_x, center_y))
+        screen.blit(text, text_rect)
 
 def draw_goals(goals):
     for x, y in goals:
         screen.blit(goal_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
 
 def draw_destroyed():
-    for x, y in destroyed_crates:
-        rect = pygame.Rect(
-                x * c.TILE_SIZE,
-                y * c.TILE_SIZE+ c.TOP_BAR_HEIGHT,
-                c.TILE_SIZE,
-                c.TILE_SIZE
-            )
-        pygame.draw.rect(screen, (255, 0, 0), rect, 1)
+    for (x, y) in destroyed_crates:
+        screen.blit(broken_crate_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
 
 def draw_top_bar():
     pygame.draw.rect(
@@ -97,6 +127,10 @@ def draw_top_bar():
     for b in buttons:
         b.update(mouse_pos)
         b.draw()
+    moves_text = font.render(f"Moves: {move_count}", True, c.TEXT_COLOR)
+    moves_x = c.SCREEN_WIDTH - 370
+    screen.blit(moves_text, (moves_x, (c.TOP_BAR_HEIGHT - moves_text.get_height()) // 2))
+    
     label = font.render(banner_text, True, c.TEXT_COLOR)
     screen.blit(
         label, 
@@ -140,7 +174,7 @@ def destroy_crate(crate_at):
     print(crates)
 
 def try_move(dx, dy):
-    global player_x, player_y, crates
+    global player_x, player_y, crates, move_count
 
     target = (player_x + dx, player_y + dy)
 
@@ -164,6 +198,7 @@ def try_move(dx, dy):
             destroy_crate(beyond)
 
     player_x, player_y = target
+    move_count += 1
 
 def is_completed(crates, goals):
     if len(goals) == len(crates):
@@ -224,15 +259,17 @@ while True:
             b.handle_event(event)
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
+            prev_pos = (player_x, player_y)
+            if event.key == pygame.K_UP or event.key == pygame.K_w:
                 try_move(0, -1)
-            elif event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                 try_move(0, 1)
-            elif event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
                 try_move(-1, 0)
-            elif event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                 try_move(1, 0)
-            hints = []
+            elif event.key == pygame.K_r:  # Quick reset
+                reset_game()
             # Keep player inside grid
             player_x = max(0, min(c.GRID_WIDTH - 1, player_x))
             player_y = max(0, min(c.GRID_HEIGHT - 1, player_y))
@@ -244,6 +281,7 @@ while True:
     draw_walls(walls)
     draw_goals(goals)
     draw_crates(crates)
+    draw_push_counters(crates)
     draw_destroyed()
     draw_hint(hints)
     draw_player(player_x, player_y)
