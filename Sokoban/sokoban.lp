@@ -10,6 +10,20 @@ goal_reached :-
 
 :- not goal_reached.
  
+%%Counts individual push actions on each crate
+push_count(C,N,T) :- 
+    crate(C),
+    N = #count {T2: push(C,T2), T2 <= T},
+    time(T).
+
+%Forbidden to push crate more than 5 times
+:- push_count(C,N,T), time(T), crate(C), N > 4.
+
+%Normalize pushing to quicken counting
+push(C,T) :- do(pushLeft(p,_,_,C),T).
+push(C,T) :- do(pushRight(p,_,_,C),T).
+push(C,T) :- do(pushUp(p,_,_,C),T).
+push(C,T) :- do(pushDown(p,_,_,C),T).
 
 occupied(X,Y,T) :- on(X,Y,_,T).
 

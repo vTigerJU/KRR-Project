@@ -1,34 +1,16 @@
 import os
 
-LEVEL_DIR = "maps"
-
-LEVEL_FILES  = [
-    os.path.join(LEVEL_DIR, f)
-    for f in os.listdir(LEVEL_DIR)
-    if f.endswith(".txt")
-]
-
-
 def load_level_from_file(path):
     """
     load a sokoban level from a text file using classic sokoban symbols:
-
     supported characters:
-
     # = wall
-
     $ = box
-
     . = goal
-
     @ = player
-
     * = box on goal
-
     + = player on goal
-
     space = empty floor
-
     lines starting with 'Title' are ignored.
 
     """
@@ -91,8 +73,6 @@ def build_asp_facts(level, player_pos, boxes):
     h = level["height"]
     walls = level["walls"]
     goals = level["goals"]
-    #boxtemp = level["boxes"]
-    #playertemp = level["player"]
 
     lines = []
     lines.append(f"coordinate(X,Y) :- X=0..{w}, Y=0..{h}.")
@@ -105,9 +85,11 @@ def build_asp_facts(level, player_pos, boxes):
     px, py = player_pos
     lines.append(f"player(p).")
     lines.append(f"on({px}, {py}, p ,0).")
-
-    for i, (bx, by) in enumerate(boxes, start = 1):
+    print(boxes)
+    for i, ((bx, by),count) in enumerate(boxes.items(), start = 1):
         lines.append(f"crate(b{i}).")
         lines.append(f"on({bx}, {by}, b{i}, 0).")
+        for a in range(0,count):
+            lines.append(f"push(b{i},{a}).")
 
     return "\n".join(lines)
