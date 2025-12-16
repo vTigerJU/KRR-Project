@@ -1,81 +1,85 @@
-% ==============================
-% Sokoban UI for clinguin
-% ==============================
+cell(X,Y) :- coordinate(X,Y).
 
-% Root window
+player_at(X,Y,0) :- on(X,Y,p,0).
+box_at(X,Y,0)    :- crate(C), on(X,Y,C,0).
+target(X,Y)      :- isgoal(X,Y).
+
+% Symbol paths
+asset(block,  "../elements/block.png").
+asset(crate,  "../elements/crate.png").
+asset(floor,  "../elements/floor.png").
+asset(goal,   "../elements/goal.png").
+asset(player, "../elements/player.png").
+
+% Symbols assigned
+sprite(X,Y,S) :- wall(X,Y),                asset(block,S).
+sprite(X,Y,S) :- player_at(X,Y,0),         asset(player,S).
+sprite(X,Y,S) :- box_at(X,Y,0),            asset(crate,S).
+sprite(X,Y,S) :- target(X,Y),              asset(goal,S).
+sprite(X,Y,S) :- cell(X,Y),                asset(floor,S).
+
 elem(window, window, root).
 attr(window, child_layout, grid).
-attr(window, class, ("justify-content-start")).
+attr(window, class, ("p-2";"justify-content-start")).
 
-% Optional title row
+% Title
 elem(title, label, window).
 attr(title, label, "Sokoban").
-attr(title, grid_column, 1).
-attr(title, grid_column_span, 7).
+attr(title, grid_column, 0).
+attr(title, grid_column_span, 20).
 attr(title, grid_row, 0).
 attr(title, class, ("fw-bold";"mb-2")).
 
-% Board cells (as containers in a grid)
+% Board cells
 elem(cell(X,Y), container, window) :- cell(X,Y).
 attr(cell(X,Y), grid_column, X) :- cell(X,Y).
-attr(cell(X,Y), grid_row, Y+1) :- cell(X,Y).  % +1 because row 0 is the title
+attr(cell(X,Y), grid_row, Y+1)  :- cell(X,Y).
 
-attr(cell(X,Y), width, 40) :- cell(X,Y).
+attr(cell(X,Y), width, 40)  :- cell(X,Y).
 attr(cell(X,Y), height, 40) :- cell(X,Y).
-attr(cell(X,Y), class,
-     ("border";"border-dark";"d-flex";"align-items-center";"justify-content-center")) :-
-    cell(X,Y).
 
-% Background coloring depending on content
-attr(cell(X,Y), class, ("bg-secondary";"bg-opacity-50")) :- wall(X,Y).
-attr(cell(X,Y), class, ("bg-warning";"bg-opacity-50")) :- target(X,Y), not box(X,Y).
-attr(cell(X,Y), class, ("bg-success";"bg-opacity-50")) :- box_on_target(X,Y).
-attr(cell(X,Y), class, ("bg-info";"bg-opacity-50")) :- player(X,Y).
+attr(cell(X,Y), class, ("d-flex";"align-items-center";"justify-content-center")) :- cell(X,Y).
 
-% ---------------------------
-% Symbols inside each cell
-% ---------------------------
+% Tile renderer (canvas with image attribute)
+elem(tile(X,Y), canvas, cell(X,Y)) :- cell(X,Y).
 
-% We build a symbol/3 predicate to avoid conflicting label attrs
+attr(tile(X,Y), width, 40)  :- cell(X,Y).
+attr(tile(X,Y), height, 40) :- cell(X,Y).
 
-symbol(X,Y,"#") :- wall(X,Y).
-symbol(X,Y,"@") :- player(X,Y), not target(X,Y).
-symbol(X,Y,"$") :- box(X,Y), not target(X,Y).
-symbol(X,Y,"*") :- box_on_target(X,Y).
-symbol(X,Y,".") :- target(X,Y), not box(X,Y).
-symbol(X,Y," ") :-
-    cell(X,Y),
-    not wall(X,Y),
-    not box(X,Y),
-    not target(X,Y),
-    not player(X,Y).
+attr(tile(X,Y), image, S) :- cell(X,Y), sprite(X,Y,S).
 
-elem(label(X,Y), label, cell(X,Y)) :- symbol(X,Y,_).
-attr(label(X,Y), label, S) :- symbol(X,Y,S).
-attr(label(X,Y), class, ("fw-bold";"text-center")) :- symbol(X,Y,_).
-
-% No interactions yet (when/4) – just a viewer
-% Control panel container (under the window)
+% Buttons
 elem(ctrls, container, window).
-attr(ctrls, child_layout, flex).
-attr(ctrls, class, ("mt-2";"gap-2")).
+attr(ctrls, child_layout, grid).
+attr(ctrls, grid_column, 0).
+attr(ctrls, grid_column_span, 20).
+attr(ctrls, grid_row, 10).
+attr(ctrls, class, ("mt-3";"gap-2";"justify-content-center")).
 
-% Up button
 elem(btn_up, button, ctrls).
 attr(btn_up, label, "↑").
-when(btn_up, click, call, add_assumption(move(up), true)).
+attr(btn_up, grid_column, 1).
+attr(btn_up, grid_row, 0).
+when(btn_up, click, call, add_assumption(ui(up), true)).
 
-% Left button
 elem(btn_left, button, ctrls).
 attr(btn_left, label, "←").
-when(btn_left, click, call, add_assumption(move(left), true)).
+attr(btn_left, grid_column, 0).
+attr(btn_left, grid_row, 1).
+when(btn_left, click, call, add_assumption(ui(left), true)).
 
-% Right button
 elem(btn_right, button, ctrls).
 attr(btn_right, label, "→").
-when(btn_right, click, call, add_assumption(move(right), true)).
+attr(btn_right, grid_column, 2).
+attr(btn_right, grid_row, 1).
+when(btn_right, click, call, add_assumption(ui(right), true)).
 
-% Down button
 elem(btn_down, button, ctrls).
 attr(btn_down, label, "↓").
-when(btn_down, click, call, add_assumption(move(down), true)).
+attr(btn_down, grid_column, 1).
+attr(btn_down, grid_row, 2).
+when(btn_down, click, call, add_assumption(ui(down), true)).
+
+#show elem/3.
+#show attr/3.
+#show when/4.

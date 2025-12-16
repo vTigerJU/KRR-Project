@@ -17,6 +17,7 @@ wall(1,4).
 wall(2,4).
 wall(3,4).
 %Extra walls
+wall(2,1).
 
 crate(c1;c2).
 on(2,2,c1,0).
