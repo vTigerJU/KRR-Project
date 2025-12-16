@@ -55,7 +55,7 @@ def load_level_from_file(path):
                 goals.add((x, y))
 
     if player is None:
-        raise ValueError(f"No player '👑' found in level file {path}")
+        raise ValueError(f"No player found in level file {path}")
 
     level = {
         "name"   : os.path.basename(path),
