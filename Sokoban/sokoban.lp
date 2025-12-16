@@ -1,12 +1,13 @@
-#const maxT = 5.
+#const maxT = 15.
 time(0..maxT).
+final(maxT).
 
-%%%Goal state%%%
-goal_reached(C) :- crate(C), on(X,Y,C,T), isgoal(X,Y), time(T).
+goal_reached :- 
+    final(T),
+    #count { C,X,Y : crate(C), on(X,Y,C,T), isgoal(X,Y) } = N,
+    N = #count { C : crate(C) }.
 
-%Integrity constraing for goal reached
-%Must be true for every crate
-:- crate(C), not goal_reached(C). 
+:- not goal_reached.
 
 occupied(X,Y,T) :- on(X,Y,_,T).
 
@@ -153,7 +154,5 @@ on(X,Y-1,p,T+1) :- do(moveUp(p,X,Y),T),
 -on(X,Y,p,T+1) :- do(moveUp(p,X,Y),T),
     on(X,Y,p,T).
 
-%#minimize{1,T : do(M,T)}.
-%#minimize{T : do(_,T)}.
-
 #show do/2.
+#show on/4.

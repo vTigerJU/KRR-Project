@@ -26,7 +26,4 @@ player(p).
 on(3,3,p,0).
 isgoal(1,1).
 isgoal(3,1).
-
-coordinate(X,Y) :- X = 0..5, Y = 0..5.
-
-time(0..4).
+coordinate(X,Y) :- X = 0..10, Y = 0..10.
