@@ -61,15 +61,18 @@ def load_initial_state():
 load_initial_state()
 
 def draw_grid():
+    """Draw floor tiles"""
     for x in range(c.GRID_WIDTH):
         for y in range(c.GRID_HEIGHT):
             screen.blit(floor_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
             
 
 def draw_player(x, y):
+    """Draw player sprite"""
     screen.blit(player_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
 
 def draw_walls(walls):
+    """Draw wall sprites"""
     for x, y in walls:
         screen.blit(wall_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
 
@@ -109,6 +112,7 @@ def draw_push_counters(crates):
         screen.blit(text, text_rect)
 
 def draw_goals(goals):
+    """Draw goal points"""
     for x, y in goals:
         screen.blit(goal_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
 
@@ -117,6 +121,7 @@ def draw_destroyed():
         screen.blit(broken_crate_img, (x * c.TILE_SIZE, y * c.TILE_SIZE + c.TOP_BAR_HEIGHT))
 
 def draw_top_bar():
+    """Draw menu bar and buttons"""
     pygame.draw.rect(
         screen,
         c.TOP_BAR_COLOR,
@@ -141,6 +146,7 @@ def draw_top_bar():
     )
 
 def draw_overlay(overlay_text):
+    """Draw won/game over screen"""
     overlay = pygame.Surface((c.SCREEN_WIDTH, c.SCREEN_HEIGHT))
     overlay.set_alpha(160)
     overlay.fill((0, 0, 0))
@@ -151,6 +157,7 @@ def draw_overlay(overlay_text):
     screen.blit(text, rect)
 
 def draw_hint(hints):
+    """Draw next move as a point"""
     for x,y in hints:
         center_x = x * c.TILE_SIZE + c.TILE_SIZE // 2
         center_y = y * c.TILE_SIZE + c.TILE_SIZE + c.TOP_BAR_HEIGHT// 2
@@ -162,16 +169,15 @@ def draw_hint(hints):
         )
 
 def in_bounds(x, y):
+    """Check within grid"""
     return 0 <= x < c.GRID_WIDTH and 0 <= y < c.GRID_HEIGHT
 
-def blocked(x, y):
-    return (x, y) in walls
-
 def destroy_crate(crate_at):
-    global crates, destroyed_crates
+    """Destroy crate when moved to much"""
+    global crates, destroyed_crates, no_solution
     destroyed_crates.add(crate_at)
     crates.pop(crate_at)
-    print(crates)
+    no_solution = True
 
 def try_move(dx, dy):
     global player_x, player_y, crates, move_count
@@ -201,15 +207,14 @@ def try_move(dx, dy):
     move_count += 1
 
 def is_completed(crates, goals):
+    """Check all crates on goals"""
     if len(goals) == len(crates):
         return all(crate in goals for crate in crates)
     else:
         return False
 
 def reset_game():
-    print("Reset game")
     load_initial_state()
-
 
 def check():
     global no_solution, banner_text
@@ -257,7 +262,7 @@ while True:
         
         for b in buttons:
             b.handle_event(event)
-
+        #Handle button presses
         if event.type == pygame.KEYDOWN:
             prev_pos = (player_x, player_y)
             if event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -274,7 +279,7 @@ while True:
             player_x = max(0, min(c.GRID_WIDTH - 1, player_x))
             player_y = max(0, min(c.GRID_HEIGHT - 1, player_y))
 
-    # Drawing
+    #Call all draw events
     screen.fill(c.BG_COLOR)
     draw_top_bar()
     draw_grid()
