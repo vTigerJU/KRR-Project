@@ -7,17 +7,43 @@ import subprocess
 import tempfile
 import os
 import sys
+import re 
 
 
-BASE_LP_FILE = "sokoban_base.lp"
+def extract_first_move(output):
+    for line in output.splitlines():
+        m = re.search(r"move\((\w+),0\)", line)
+        if m:
+            return m.group(1)
+    return None
 
-LEVEL_DIR = "maps"
 
-LEVEL_FILES  = [
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+BASE_LP_FILE = os.path.join(ROOT, "sokoban_base.lp")
+LEVEL_DIR = os.path.join(ROOT, "maps")
+
+LEVEL_FILES  = sorted(
+
     os.path.join(LEVEL_DIR, f)
     for f in os.listdir(LEVEL_DIR)
     if f.endswith(".txt")
-]
+)
+
+def list_level_files(level_dir: str):
+    if not os.path.isdir(level_dir):
+        raise FileNotFoundError(f"Missing levels folder: {level_dir}")
+    files = []
+    for f in os.listdir(level_dir):
+        if f.endswith(".txt"):
+            files.append(os.path.join(level_dir, f))
+    files.sort()
+    if not files:
+        raise FileNotFoundError(f"No .txt levels found in: {level_dir}")
+    return files
+
+
 
 
 def load_level_from_file(path):
@@ -41,14 +67,15 @@ def load_level_from_file(path):
     space = empty floor
 
     lines starting with 'Title' are ignored.
-
+    Empty lines are ignored.
     """
+ 
+   
 
-
-    with open(path, "r") as f:
+    with open(path, "r", encoding= "utf-8") as f:
         raw_lines = [line.rstrip("\n") for line in f]
 
-    #drop empty lines and "title: " lines
+
 
     lines = [ 
 
@@ -87,10 +114,11 @@ def load_level_from_file(path):
             elif ch == "+":
                 player = (x, y)
                 goals.add((x, y))
-
+            else:
+                pass
 
     if player is None:
-        raise ValueError(f"No player '👑' found in level file {path}")
+        raise ValueError(f"No player '@' found in level file {path}")
 
     level = {
 
@@ -102,6 +130,7 @@ def load_level_from_file(path):
         "player" : player,
         "boxes"  : boxes,
     }
+    
     return level
 
 # ------ASP interface-----
@@ -109,17 +138,16 @@ def load_level_from_file(path):
 def build_asp_facts(level, player_pos, boxes):
     w = level["width"]
     h = level["height"]
-    walls = level["walls"]
-    goals = level["goals"]
+   
 
     lines = []
     lines.append (f"x(1..{w}).")
     lines.append (f"y(1..{h}).")
 
-    for (wx, wy) in sorted(walls):
+    for (wx, wy) in sorted(level["walls"]):
         lines.append(f"wall({wx}, {wy}).")
 
-    for (gx, gy) in sorted(goals):
+    for (gx, gy) in sorted(level["goals"]):
         lines.append(f"goal({gx}, {gy}).")
 
     px, py = player_pos
@@ -149,9 +177,9 @@ def ask_hint(level, player_pos, boxes):
         tmp_path = tmp.name
 
     try:
-        cmd = ["clingo", BASE_LP_FILE, tmp_path, "--quiet=1"]
+        cmd = ["clingo", BASE_LP_FILE, tmp_path, "--quiet=1", "--opt-mode=optN", "-n", "1"]
         result = subprocess.run(cmd, capture_output = True, text = True, timeout = 60 )
-        output = result.stdout
+        output = (result.stdout or "") + "\n" + (result.stderr or "")
 
         if "UNSATISFIABLE" in output:
             return None
@@ -163,10 +191,10 @@ def ask_hint(level, player_pos, boxes):
             inside = m[m.find ("(") + 1 : m.find(")")]
             direction, t = inside.split(",")
             if t == "0":
-                first_move = direction
-                break
+                return  direction
+        
 
-        return first_move
+        return None
     except Exception as e:
         print ("Error running clingo: ", e)
         return None 
@@ -286,7 +314,7 @@ class SokobanTextGame:
                 cmd = input("Command (w/a/s/d/h/r/n/q): ").strip().lower()
 
             if cmd == "q":
-                print("Bye!")
+                print("Good Bye!")
                 break
             elif cmd == "r":
                 self.load_level(self.level_index)
@@ -321,7 +349,6 @@ if __name__ == "__main__":
     try:
         game = SokobanTextGame()
         game.run()
-    except FileNotFoundError as e:
+    except Exception as e:
         print("Error:", e)
-        print("Make sure Apple_tree.txt, Indestructible_Word_Game.txt, Menorah.txt exist.")
         sys.exit(1)

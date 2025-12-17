@@ -13,9 +13,9 @@ dir(up; down; left; right).
 
 %---At each time step choose exactly one move-----
 
-1 { move(D, T) : dir(D) } 1 :- time (T), T < maxT.
+{ move(D, T) : dir(D) } <= 1 :- time(T), T < maxT.
 
-%---helper: cell occupied by a box at time T -----
+%---helpers -----
 
 box_at(X, Y, T) :- box(B, X, Y, T).
 
@@ -23,15 +23,22 @@ occupied(X, Y, T) :- wall(X, Y).
 occupied(X, Y, T) :-box_at(X, Y, T).
 
 
-%--- Player movement -----
+%---movement -----
 
-next_pos (X, Y, up, X, Y1)     :- Y1 = Y - 1.
-next_pos (X, Y, down, X, Y1)   :- Y1 = Y + 1.
-next_pos (X, Y, left, X, Y1)   :- X1 = X - 1.
-next_pos (X, Y, right, X, Y1)  :- X1 = X - 1.
+next_pos (X, Y, up, X, Y1)     :- Y1 = Y-1.
+next_pos (X, Y, down, X, Y1)   :- Y1 = Y+1.
+next_pos (X, Y, left, X1, Y)   :- X1 = X-1.
+next_pos (X, Y, right, X1, Y)  :- X1 = X+1.
+
+
+beyond_pos(X, Y, up, X, Y2)    :- Y2 = Y-1.
+beyond_pos(X, Y, down, X, Y2)  :- Y2 = Y+1.
+beyond_pos(X, Y, left, X2, Y)  :- X2 = X-1.
+beyond_pos(X, Y, right, X2, Y) :- X2 = X+1.
+
 
 %--- move without box-----
-player (X2, Y2, T + 1) :- 
+player (X2, Y2, T+1) :- 
                 player (X, Y, T),
                 move (D, T),
                 next_pos (X, Y, D, X2, Y2),
@@ -40,20 +47,14 @@ player (X2, Y2, T + 1) :-
                 not wall (X2, Y2). 
 
 
-%--- beyond position (for pushing)-----
-beyond_pos(X, Y, up, X, Y2)    :- Y2 = Y - 1.
-beyond_pos(X, Y, down, X, Y2)  :- Y2 = Y + 1.
-beyond_pos(X, Y, left, X2, Y)  :- X2 = X - 1.
-beyond_pos(X, Y, right, X2, Y) :- X2 = X + 1.
-
 
 
 %---pushing rule: player and box move together
-player (Xb, Yb, T + 1) :- 
+player (Xb, Yb, T+1) :- 
             player (X, Y, T),
             move(D, T),
             next_pos(X, Y, D, Xb, Yb),
-            box(B, Xb, Yb, T),
+            box_at(Xb, Yb, T),
             beyond_pos(Xb, Yb, D, Xb2, Yb2),
             x(Xb2), y(Yb2),
             not occupied(Xb2, Yb2, T).
@@ -72,10 +73,13 @@ box (B, Xb2, Yb2, T + 1) :-
 %--- Frame axioms (Boxes that are not pushed stay)-----
 
 move_box (B, T) :- 
-        box(B, X, Y, T),
-        player(PX, PY, T),
+        player(X, Y, T),
         move(D, T),
-        next_pos(PX, PY, D, X, Y).
+        next_pos(X, Y, D, Xb, Yb),
+        box(B, Xb, Yb, T).
+        
+        
+        
 
 
 box (B, X, Y, T+1) :- 
@@ -83,7 +87,7 @@ box (B, X, Y, T+1) :-
     not moved_box(B, T).
 
 
-%--- Illegal moves -----
+%--- Constraints -----
 
 % cannot move outside grid
 :- move (D, T), player (X, Y, T),
@@ -100,34 +104,26 @@ box (B, X, Y, T+1) :-
 % cannot push box into wall or another box or outside grid
 :- move (D, T), player (X, Y, T),
     next_pos(X, Y, D, X2, Y2),
-    box(B, Xb, Yb, T),
-    ( not beyond_pos(Xb, Yb, D, Xb2, Yb2)
-    ; not x(Xb2)
-    ; not y(Yb2)
-    ; wall(Xb2, Yb2)
-    ; box_at(Xb2, Yb2, T)).
+    box_at(X2, Y2, T),
+    beyond_pos(X2, Y2, D, X3, Y3)
+    ( 
+    ; not x(X3)
+    ; not y(Y3)
+    ; wall(X3, Y3)
+    ; box_at(X3, Y3, T)).
 
 
 
 %--- Initial conditions -----
 % exactly one player at time 0
 
-:- not 1 { player (X, Y, 0) : x(X), y(Y) } 1.
+1 { player (X, Y, 0) : x(X), y(Y) } 1.
 
-%--- Goal condition-----
-all_boxes_on_goals(T) :-
-    time(T),
-    not bad_box(T).
+%---Hint mode: require at least one move----
 
+:- not 1 { move(_,0) }.
 
-bad_box(T) :- 
-    box(B, X, Y, T),
-    not goal(X, Y).
-
-
-solved :- all_boxes_on_goals(T).
-:- not solved.
-
+%----
 
 
 #minimize { 1, T : move(_, T) }.
