@@ -43,7 +43,7 @@ no_solution = False
 banner_text = ""
 
 def load_initial_state():
-    global crates, walls, goals, no_solution, player_x, player_y, banner_text, destroyed_crates, move_count, hints
+    global crates, walls, goals, no_solution, player_x, player_y, banner_text, destroyed_crates, move_count, hints, map
     map = map_loader.load_level_from_file(map_name)
     no_solution = False
     player_x, player_y = map["player"]
@@ -134,7 +134,7 @@ def draw_top_bar():
         b.update(mouse_pos)
         b.draw()
     moves_text = font.render(f"Moves: {move_count}", True, c.TEXT_COLOR)
-    moves_x = c.SCREEN_WIDTH - 370
+    moves_x = c.SCREEN_WIDTH - 250
     screen.blit(moves_text, (moves_x, (c.TOP_BAR_HEIGHT - moves_text.get_height()) // 2))
     
     label = font.render(banner_text, True, c.TEXT_COLOR)
@@ -231,7 +231,6 @@ def check():
 def hint():
     global no_solution
     map_facts = map_loader.build_asp_facts(map,(player_x,player_y),crates)
-    print(map_facts)
     try:
         x, y = controller.hint(map_facts)
         print(x,y)
@@ -240,6 +239,13 @@ def hint():
         print("No solution")
         no_solution = True
 
+def next():
+    global map_name
+    if map_name == "maps/8.txt":
+        map_name = "maps/9.txt"
+    else:
+        map_name = "maps/8.txt"
+    load_initial_state()
 
 buttons = []
 x = c.BUTTON_PADDING
@@ -252,6 +258,9 @@ buttons.append(Button("Hint", x, y, c.BUTTON_WIDTH, c.BUTTON_HEIGHT, hint,screen
 x += c.BUTTON_WIDTH + c.BUTTON_PADDING
 
 buttons.append(Button("Check", x, y, c.BUTTON_WIDTH, c.BUTTON_HEIGHT, check,screen))
+x += c.BUTTON_WIDTH + c.BUTTON_PADDING
+
+buttons.append(Button("Next",x,y,c.BUTTON_WIDTH, c.BUTTON_HEIGHT,next,screen))
 
 #Game Loop
 while True:

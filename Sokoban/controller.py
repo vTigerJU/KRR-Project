@@ -15,7 +15,7 @@ def solve(map_facts):
         ctl.add("base", [], map_facts)
         ctl.ground([("base", [])])
         result = ctl.solve(on_model=on_model)
-
+        print(map_facts)
         if result.satisfiable and final_model is not None:
            
             return final_model
