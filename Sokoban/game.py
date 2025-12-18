@@ -11,7 +11,7 @@ pygame.display.set_caption("Grid Movement Example")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 24)
 move_count = 0
-map_name = "maps/test.txt"
+map_name = "maps/9.txt"
 map = map_loader.load_level_from_file(map_name)
 
 crate_img = pygame.image.load("elements/crate.png").convert_alpha()
@@ -43,7 +43,7 @@ no_solution = False
 banner_text = ""
 
 def load_initial_state():
-    global crates, walls, goals, no_solution, player_x, player_y, banner_text, destroyed_crates, move_count
+    global crates, walls, goals, no_solution, player_x, player_y, banner_text, destroyed_crates, move_count, hints
     map = map_loader.load_level_from_file(map_name)
     no_solution = False
     player_x, player_y = map["player"]
@@ -57,6 +57,7 @@ def load_initial_state():
         crates[crate] = 0
     destroyed_crates = set()
     move_count = 0
+    hints = []
 
 load_initial_state()
 
@@ -180,7 +181,7 @@ def destroy_crate(crate_at):
     no_solution = True
 
 def try_move(dx, dy):
-    global player_x, player_y, crates, move_count
+    global player_x, player_y, crates, move_count, hints
 
     target = (player_x + dx, player_y + dy)
 
@@ -205,6 +206,7 @@ def try_move(dx, dy):
 
     player_x, player_y = target
     move_count += 1
+    hints = []
 
 def is_completed(crates, goals):
     """Check all crates on goals"""
