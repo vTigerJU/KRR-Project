@@ -1,5 +1,6 @@
 #const maxT = 20.
 time(0..maxT).
+final(maxT).
 
 goal_reached :- 
     time(T),
@@ -173,3 +174,4 @@ on(X,Y-1,p,T+1) :- do(moveUp(p,X,Y),T),
 #minimize{T : do(_,T)}.
 
 #show do/2.
+#show on/4.

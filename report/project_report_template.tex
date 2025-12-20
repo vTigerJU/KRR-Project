@@ -41,10 +41,11 @@ nomarginpar,% We don't want any margin paragraphs
 
 \section{Introduction and Movivation}
 
-Sokoban is a classical puzzle game in which a player must push boxes onto target tiles within a 2D grid world. The puzzle is well-knwon not only for its intuitive mechanics but also for its computational difficulty, being NP-hard.
-These characteristics make sokoban an excellent domain for symbolic AI techniques such as Answer Set Programming (ASP).
-The Movivation behind this project is to demonstrate how ASP can be integrated into an interactive system to provide reasoning capabilities such as solvability checking and intelligent hint generation. Unlike traditional sokoban implementations, our system is able to detect unsolvable states after player mistakes, compute optimal solutions, and provide real-time hints.
+In this project we focus on the domain of puzzle games, specifically the classic game Sokoban originating from Japan. Sokoban is a grid puzzle game where the player moves boxes to designated goal tiles while navigating around walls and other obstacles on the map. A key characteristic of the game is that boxes can only be pushed and never pulled, which means that incorrect decisions can easily lead to unsolvable situations.  
 
+This domain is particularly interesting for Answer Set Programming (ASP) because Sokoban can naturally be modeled as a planning and constraint problem. The rules of the game are strict and well-defined and the concept of reaching a solved configuration can be expressed declaratively. The game requires reasoning several steps ahead which makes it suitable for logic-based reasoning techniques. 
+
+The scope of this project is to build a text-based Sokoban game and integrate ASP as a solver that can reason about the current game state after every player-move. ASP is used to determine whether a puzzle is solvable and to generate valid sequences of actions and by showing the player the first move in a sequence we can use that as hints. The project does not focus on performance optimization or large-scale evaluation. Instead, the weight is on demonstrating how symbolic reasoning with ASP can be applied to an interactive puzzle domain. 
 
 {\it 
 \begin{itemize}
