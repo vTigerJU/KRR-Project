@@ -1,13 +1,30 @@
-#const maxT = 15.
+#const maxT = 20.
 time(0..maxT).
 final(maxT).
 
 goal_reached :- 
-    final(T),
+    time(T),
     #count { C,X,Y : crate(C), on(X,Y,C,T), isgoal(X,Y) } = N,
     N = #count { C : crate(C) }.
 
 :- not goal_reached.
+
+:- #count {C: crate(C)} = N, #count {X,Y:isgoal(X,Y)} = G, N != G.
+
+%%Counts individual push actions on each crate
+push_count(C,N,T) :- 
+    crate(C),
+    N = #count {T2: push(C,T2), T2 <= T},
+    time(T).
+
+%Forbidden to push crate more than 5 times
+:- push_count(C,N,T), time(T), crate(C), N > 4.
+
+%Normalize pushing to quicken counting
+push(C,T) :- do(pushLeft(p,_,_,C),T).
+push(C,T) :- do(pushRight(p,_,_,C),T).
+push(C,T) :- do(pushUp(p,_,_,C),T).
+push(C,T) :- do(pushDown(p,_,_,C),T).
 
 occupied(X,Y,T) :- on(X,Y,_,T).
 
@@ -153,6 +170,8 @@ on(X,Y-1,p,T+1) :- do(moveUp(p,X,Y),T),
     on(X,Y,p,T).
 -on(X,Y,p,T+1) :- do(moveUp(p,X,Y),T),
     on(X,Y,p,T).
+
+#minimize{T : do(_,T)}.
 
 #show do/2.
 #show on/4.
