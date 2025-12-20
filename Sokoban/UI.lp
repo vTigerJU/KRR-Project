@@ -1,3 +1,6 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% not used in final project%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 cell(X,Y) :- coordinate(X,Y).
 
 player_at(X,Y,0) :- on(X,Y,p,0).
